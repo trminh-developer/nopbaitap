@@ -68,9 +68,9 @@ npm run dev
 
 1. Mở browser: `http://localhost:5173`
 2. Điền form:
-   - Họ tên: "Nguyễn Văn A"
-   - Email: "vana@example.com"
-   - Ghi chú: "Lớp B1"
+   - Họ tên: "TrMinh"
+   - Email: "trminhcsc@gmail.com"
+   - Ghi chú: "Lớp IT"
    - File: Chọn file .css
 3. Click "Nộp bài"
 4. ✅ Toast success: "Nộp bài thành công! 🎉"
@@ -94,48 +94,6 @@ VITE_API_URL=http://localhost:3001
 ```
 
 ---
-
-## 🐛 Lỗi HTTP 405: Nguyên Nhân & Fix
-
-### ❌ Lỗi Gốc Trong Dự Án
-
-| Vấn đề | Nguyên nhân | Fix |
-|--------|-----------|-----|
-| **Backend không khởi động** | File typo: `sever.js` ≠ `server.js` | ✅ Đã fix: rename → `server.js` |
-| **Frontend gửi GET** | Check useUpload.js method | ✅ Chuẩn: POST |
-| **Sai Content-Type** | Frontend set thủ công | ✅ Chuẩn: Để browser tự set |
-| **CORS block** | Missing OPTIONS method | ✅ Chuẩn: cors config có OPTIONS |
-| **Field name mismatch** | Frontend append 'file' vs backend expect 'files' | ✅ Chuẩn: Both use 'files' |
-
-### 📊 Flow Request Đúng
-
-```
-Frontend
-├─ 1. Dùng FormData (không JSON)
-├─ 2. append: studentName, studentEmail, files[]
-├─ 3. fetch(...{ method: 'POST', body: formData })
-│  (⚠ KHÔNG set Content-Type — browser tự set)
-└─ 4. Xử lý response: res.ok? toast success : toast error
-
-Browser (tự động)
-├─ Thấy FormData → tạo boundary UUID
-├─ Set header: Content-Type: multipart/form-data; boundary=...
-├─ Cross-origin request? → gửi OPTIONS preflight trước
-└─ OPTIONS 200? → gửi POST thực
-
-Backend
-├─ CORS middleware pass OPTIONS preflight ✓
-├─ Multer parse FormData → req.body + req.files
-├─ Validate: email, name, files
-├─ Lưu files: tạo filename random + timestamp
-└─ Response: 200 + JSON success
-```
-
-Xem chi tiết: **[HTTP_405_ANALYSIS.md](./HTTP_405_ANALYSIS.md)**
-
----
-
-## 🧪 Testing & Debugging
 
 ### DevTools Network Tab
 1. F12 → Network tab → Submit form
