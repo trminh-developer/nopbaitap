@@ -622,11 +622,42 @@ body {
 
 /* -- FOOTER -- */
 footer {
+  position: relative;        /* tạo stacking context */
+  z-index: 1;                /* nổi lên trên bg-orb / bg-grid (z-index: 0) */
   margin-top: 60px;
+  padding-bottom: 32px;
   text-align: center;
 }
 
-.footer-text {
-  font-size: 18px;
+.footer-contact {
+  margin-bottom: 8px;
+}
+
+.footer-contact p {
+  font-size: 13.5px;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.footer-contact a {
+  color: var(--accent);
+  text-decoration: none;
+  transition: color 0.2s, text-decoration-color 0.2s;
+  text-underline-offset: 3px;
+}
+
+.footer-contact a:hover {
+  color: #fff;
+  text-decoration: underline;
+}
+
+.footer-source {
+  font-size: 12.5px;
   color: var(--text-dim);
+}
+
+.footer-text {
+  font-size: 13px;
+  color: var(--text-dim);
+  margin-top: 6px;
 }
