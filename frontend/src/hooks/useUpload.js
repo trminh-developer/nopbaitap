@@ -59,7 +59,7 @@ export function useUpload() {
   };
 
   /* ── Submit ── */
-  const submit = useCallback(async ({ name, email, note }) => {
+  const submit = useCallback(async ({ name, email, studentClass, course }) => {
     if (!validate(name, email)) return { success: false };
 
     setStatus('loading');
@@ -73,7 +73,8 @@ export function useUpload() {
     const formData = new FormData();
     formData.append('studentName', name.trim());
     formData.append('studentEmail', email.trim());
-    formData.append('studentNote', note?.trim() || '');
+    formData.append('studentClass', studentClass || '');
+    formData.append('course', course || '');
     files.forEach(f => formData.append('files', f)); // field name khớp upload.array('files')
 
     setProgress(40);

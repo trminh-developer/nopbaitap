@@ -5,10 +5,6 @@ const path = require('path');
 const fs = require('fs');
 const crypto = require('crypto');
 
-/* ── Upload directory ── */
-const UPLOAD_DIR = path.join(__dirname, '..', 'uploads');
-if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true });
-
 /* ── Allowed MIME types ── */
 const ALLOWED_MIMES = new Set([
   'application/pdf',
@@ -29,20 +25,8 @@ const ALLOWED_MIMES = new Set([
   'application/json',
 ]);
 
-/* ── Storage engine: disk ── */
-const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => cb(null, UPLOAD_DIR),
-
-  filename: (_req, file, cb) => {
-    // Sanitize tên file gốc, thêm timestamp + random để tránh trùng
-    const safeBase = path.basename(file.originalname, path.extname(file.originalname))
-      .replace(/[^a-zA-Z0-9_\-\.]/g, '_')
-      .slice(0, 60);
-    const ext = path.extname(file.originalname).toLowerCase();
-    const uid = crypto.randomBytes(6).toString('hex');
-    cb(null, `${Date.now()}_${uid}_${safeBase}${ext}`);
-  }
-});
+/* ── Storage engine: memory ── */
+const storage = multer.memoryStorage();
 
 /* ── File filter ── */
 const fileFilter = (_req, file, cb) => {

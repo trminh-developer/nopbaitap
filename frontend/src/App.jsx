@@ -1,5 +1,5 @@
 import { Toaster } from 'sonner';
-import UploadForm from './components/UploadForm';
+import UploadForm from './components/UploadForm.jsx';
 
 export default function App() {
   return (

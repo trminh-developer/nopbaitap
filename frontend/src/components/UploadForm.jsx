@@ -77,7 +77,8 @@ const ProgressBar = ({ progress, label }) => (
 export default function UploadForm() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [note, setNote] = useState('');
+  const [studentClass, setStudentClass] = useState('');
+  const [course, setCourse] = useState('');
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef(null);
 
@@ -101,10 +102,10 @@ export default function UploadForm() {
   /* ── Submit handler ── */
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const result = await submit({ name, email, note });
+    const result = await submit({ name, email, studentClass, course });
     if (result.success) {
       toast.success('Nộp bài thành công! 🎉');
-      setName(''); setEmail(''); setNote('');
+      setName(''); setEmail(''); setStudentClass(''); setCourse('');
     } else if (result.message) {
       toast.error(result.message);
     }
@@ -153,19 +154,37 @@ export default function UploadForm() {
         </div>
       </div>
 
-      {/* ── Note ── */}
-      <div>
-        <label className="block text-sm font-medium text-white/70 mb-1.5">Ghi chú</label>
-        <textarea
-          value={note}
-          onChange={e => setNote(e.target.value)}
-          placeholder="Lớp, học phần, ghi chú thêm cho giáo viên…"
-          rows={3}
-          disabled={isLoading}
-          className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white
-            placeholder-white/25 outline-none resize-none transition-all
-            focus:bg-white/8 focus:border-indigo-500/70 focus:ring-1 focus:ring-indigo-500/40 disabled:opacity-50"
-        />
+      {/* ── Class + Course ── */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-white/70 mb-1.5">Lớp</label>
+          <select
+            value={studentClass}
+            onChange={e => setStudentClass(e.target.value)}
+            disabled={isLoading}
+            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none transition-all focus:bg-white/8 focus:border-indigo-500/70 focus:ring-1 focus:ring-indigo-500/40 disabled:opacity-50 appearance-none"
+          >
+            <option value="" className="bg-[#1e1e2e]">Chọn lớp...</option>
+            <option value="CNTT-01" className="bg-[#1e1e2e]">CNTT-01</option>
+            <option value="CNTT-02" className="bg-[#1e1e2e]">CNTT-02</option>
+            <option value="KHMT-01" className="bg-[#1e1e2e]">KHMT-01</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-white/70 mb-1.5">Học phần</label>
+          <select
+            value={course}
+            onChange={e => setCourse(e.target.value)}
+            disabled={isLoading}
+            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none transition-all focus:bg-white/8 focus:border-indigo-500/70 focus:ring-1 focus:ring-indigo-500/40 disabled:opacity-50 appearance-none"
+          >
+            <option value="" className="bg-[#1e1e2e]">Chọn học phần...</option>
+            <option value="Lập trình Web" className="bg-[#1e1e2e]">Lập trình Web</option>
+            <option value="Cấu trúc dữ liệu" className="bg-[#1e1e2e]">Cấu trúc dữ liệu</option>
+            <option value="Cơ sở dữ liệu" className="bg-[#1e1e2e]">Cơ sở dữ liệu</option>
+          </select>
+        </div>
       </div>
 
       {/* ── Dropzone ── */}

@@ -54,8 +54,7 @@ app.use('/api/', rateLimit({
 app.use(express.json({ limit: '1mb' })); // chỉ cho JSON routes khác
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
-/* ── Static files (uploaded) ── */
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+/* ── Removed Static files (uploads) ── */
 
 /* ── Routes ── */
 app.use('/api/upload', uploadRouter);

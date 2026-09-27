@@ -1,1 +1,5 @@
-node_modules
+﻿node_modules
+credentials.json
+frontend/dist
+test-drive*.js
+.env*
