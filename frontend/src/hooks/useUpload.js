@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+const API_URL = import.meta.env.VITE_API_URL || 'DÁN_LINK_APPS_SCRIPT_CỦA_BẠN_VÀO_ĐÂY';
 const MAX_SIZE = 10 * 1024 * 1024; // 10 MB
 const MAX_FILES = 10;
 
@@ -65,33 +65,44 @@ export function useUpload() {
     setStatus('loading');
     setProgress(10);
 
-    /* ── Build FormData ──────────────────────────────────────────────────────
-       ĐÚNG: append từng file với field name 'files'
-       SAI:  JSON.stringify({ files: [...base64] })
-       SAI:  set 'Content-Type': 'multipart/form-data' thủ công (browser tự set boundary)
-    ─────────────────────────────────────────────────────────────────────── */
-    const formData = new FormData();
-    formData.append('studentName', name.trim());
-    formData.append('studentEmail', email.trim());
-    formData.append('studentClass', studentClass || '');
-    formData.append('course', course || '');
-    files.forEach(f => formData.append('files', f)); // field name khớp upload.array('files')
-
-    setProgress(40);
-
     try {
-      const res = await fetch(`${API_URL}/api/upload`, {
+      // 1. Convert files to Base64
+      const base64Files = await Promise.all(files.map(async (f) => {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve({
+            name: f.name,
+            mimeType: f.type,
+            base64: reader.result
+          });
+          reader.onerror = error => reject(error);
+          reader.readAsDataURL(f);
+        });
+      }));
+
+      setProgress(40);
+
+      // 2. Build payload
+      const payload = {
+        studentName: name.trim(),
+        studentEmail: email.trim(),
+        studentClass: studentClass || '',
+        course: course || '',
+        files: base64Files
+      };
+
+      // 3. Gửi lên Google Apps Script Webhook
+      const response = await fetch(API_URL, {
         method: 'POST',
-        // ⚠ KHÔNG set Content-Type header — browser tự thêm với boundary chính xác
-        body: formData,
+        body: JSON.stringify(payload),
+        // Chú ý: fetch tới Apps Script không dùng headers Content-Type để tránh CORS preflight lằng nhằng
       });
 
       setProgress(90);
-      const data = await res.json();
+      const data = await response.json();
 
-      if (!res.ok) {
-        const msg = data.errors?.join(' ') || data.message || `Server lỗi ${res.status}`;
-        throw new Error(msg);
+      if (!data.success) {
+        throw new Error(data.message || `Lỗi từ Google Drive!`);
       }
 
       setProgress(100);
@@ -100,8 +111,9 @@ export function useUpload() {
       return { success: true, data };
 
     } catch (err) {
+      console.error(err);
       setStatus('error');
-      return { success: false, message: err.message };
+      return { success: false, message: err.message || 'Lỗi kết nối mạng!' };
     } finally {
       setTimeout(() => { setProgress(0); setStatus('idle'); }, 2000);
     }
