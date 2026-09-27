@@ -29,8 +29,8 @@ const State = {
   files: [],
   isUploading: false,
   MAX_SIZE: 10 * 1024 * 1024, // 10 MB
-  WEBHOOK_URL: 'YOUR_WEBHOOK_URL_HERE', // Thay bằng endpoint thật
-  AUTH_TOKEN: 'YOUR_SECURE_TOKEN'       // Thay bằng token của bạn
+  // ⚠️ THAY ĐỔI: URL của Google Apps Script deployment
+  WEBHOOK_URL: 'https://script.googleapis.com/macros/d/YOUR_DEPLOYMENT_ID/usercodeappname',
 };
 
 /* ── Utilities ── */
@@ -77,8 +77,8 @@ const UI = {
     State.isUploading = loading;
     DOM.submitBtn.disabled = loading;
     DOM.submitText.innerHTML = loading
-      ? `<svg class="btn-icon spin" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="2" stroke-dasharray="44" stroke-dashoffset="22"/></svg>Đang xử lý...`
-      : `<svg class="btn-icon" viewBox="0 0 20 20" fill="none"><path d="M10 3v10M10 3l-3 3M10 3l3 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M4 14v1a2 2 0 002 2h8a2 2 0 002-2v-1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Nộp bài`;
+      ? `<svg class="btn-icon spin" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="2" stroke-dasharray="44" stroke-dashoffset="22"/></svg>Đang xử lý…`
+      : `<svg class="btn-icon" viewBox="0 0 20 20" fill="none"><path d="M10 3v10M10 3l-3 3M10 3l3 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 14v1a2 2 0 002 2h8a2 2 0 002-2v-1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Nộp bài`;
   },
 
   showToast: (type, title, message) => {
@@ -198,14 +198,13 @@ const submitToServer = async () => {
       files: filesData
     };
 
-    UI.updateProgress('Đang tải lên server...', 60);
+    UI.updateProgress('Đang tải lên Google Drive...', 60);
 
-    // MODE 2: Webhook Upload
+    // Gửi tới Google Apps Script
     const response = await fetch(State.WEBHOOK_URL, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${State.AUTH_TOKEN}`
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify(payload)
     });
@@ -213,8 +212,13 @@ const submitToServer = async () => {
     if (!response.ok) throw new Error(`Server báo lỗi: ${response.status}`);
     
     const result = await response.json();
+    
+    if (result.status !== 'success') {
+      throw new Error(result.message || 'Lỗi không xác định');
+    }
+    
     UI.updateProgress('Hoàn tất!', 100);
-    UI.showToast('success', 'Thành công', 'Bài tập đã được nộp thành công!');
+    UI.showToast('success', 'Thành công', 'Bài tập đã được nộp và lưu vào Google Drive!');
     setTimeout(UI.resetForm, 1500);
 
   } catch (err) {
