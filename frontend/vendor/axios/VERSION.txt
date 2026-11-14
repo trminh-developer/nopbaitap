@@ -1,0 +1,3 @@
+Axios 1.21.1
+Source: https://cdn.jsdelivr.net/npm/axios@1.21.1
+Integrity: sha384-Yf45CfLv6nk++p9gb3DsetmfSv9UFZ+BmCCmRdGuDRx6O38wG8jp1WgldRCeDGVv

@@ -3,3 +3,6 @@ credentials.json
 frontend/dist
 test-drive*.js
 .env*
+.save-conflicts/
+.tools/
+.clasprc.json
