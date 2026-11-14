@@ -49,9 +49,18 @@ function backend(options = {}) {
   });
   const context = {
     DriveApp: {
-      getFolderById() {
+      getFolderById(id) {
         if (options.denied) throw new Error("Access denied");
-        return { getName: () => "Assignments" };
+        return {
+          getName: () => "Assignments",
+          getId: () => id || "root_folder",
+          getFoldersByName: () => ({ hasNext: () => false }),
+          createFolder: (name) => ({
+            getId: () => "subfolder_" + name,
+            getFoldersByName: () => ({ hasNext: () => false }),
+            createFolder: (sub) => ({ getId: () => "subfolder_" + sub }),
+          }),
+        };
       },
     },
     ScriptApp: { getOAuthToken: () => "test-token" },

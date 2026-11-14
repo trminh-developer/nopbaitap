@@ -98,6 +98,11 @@ function startUploads_(data) {
     };
   });
   DriveApp.getFolderById(UPLOAD_FOLDER_ID).getName();
+  var classFolderId = getOrCreateSubfolder_(UPLOAD_FOLDER_ID, studentClass);
+  var targetFolderId = classFolderId;
+  if (course && course !== "NoCourse") {
+    targetFolderId = getOrCreateSubfolder_(classFolderId, course);
+  }
   var uploads = files.map(function (file) {
     var response = driveFetch_(
       "https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable&supportsAllDrives=true&fields=id,name,size,webViewLink,parents",
@@ -112,7 +117,7 @@ function startUploads_(data) {
         payload: JSON.stringify({
           name: file.name,
           mimeType: file.mimeType,
-          parents: [UPLOAD_FOLDER_ID],
+          parents: [targetFolderId],
           description:
             "Student ID: " +
             studentId +
@@ -133,7 +138,7 @@ function startUploads_(data) {
       sessionUrl: sessionUrl,
       size: file.size,
       mimeType: file.mimeType,
-      folderId: UPLOAD_FOLDER_ID,
+      folderId: targetFolderId,
       issuedAt: Date.now(),
     });
     return { ticket: ticket, size: file.size };
@@ -228,6 +233,27 @@ function parseUploadResult_(response, ticket) {
   };
 }
 
+function getOrCreateSubfolder_(parentFolderId, folderName) {
+  var sanitized = String(folderName || "").replace(/[\/\\:*?"<>|]/g, "_").trim();
+  if (!sanitized) sanitized = "Chung";
+  var parent = DriveApp.getFolderById(parentFolderId);
+  var folders = parent.getFoldersByName(sanitized);
+  if (folders.hasNext()) {
+    return folders.next().getId();
+  }
+  var lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+  try {
+    folders = parent.getFoldersByName(sanitized);
+    if (folders.hasNext()) {
+      return folders.next().getId();
+    }
+    return parent.createFolder(sanitized).getId();
+  } finally {
+    lock.releaseLock();
+  }
+}
+
 function validSessionUrl_(url) {
   return (
     typeof url === "string" &&
@@ -270,7 +296,8 @@ function readTicket_(value) {
     !Number.isInteger(ticket.size) ||
     ticket.size < 0 ||
     ticket.size > UPLOAD_MAX_SIZE ||
-    ticket.folderId !== UPLOAD_FOLDER_ID ||
+    typeof ticket.folderId !== "string" ||
+    !ticket.folderId ||
     !Number.isFinite(ticket.issuedAt) ||
     Date.now() - ticket.issuedAt > 7 * 24 * 60 * 60 * 1000 ||
     ticket.issuedAt > Date.now() + 60000
