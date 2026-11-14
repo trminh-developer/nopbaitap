@@ -216,7 +216,7 @@ function client(fetch, reads = []) {
     };
   }
   vm.runInNewContext(
-    fs.readFileSync(path.join(root, "frontend/upload-core.js"), "utf8"),
+    fs.readFileSync(path.join(root, "upload-core.js"), "utf8"),
     context,
   );
   return context.UploadCore;
@@ -650,7 +650,7 @@ function formHarness({ omitScripts = [], missingIds = [] } = {}) {
       return Promise.all((this.listeners[event] || []).map(handler => handler({ target: this, preventDefault() {}, ...details })));
     }
   }
-  const html = fs.readFileSync(path.join(root, "frontend/index.html"), "utf8");
+  const html = fs.readFileSync(path.join(root, "index.html"), "utf8");
   const elements = new Map();
   for (const match of html.matchAll(/<([a-z][\w:-]*)\b([^>]*\bid="([^"]+)"[^>]*)>/gi)) {
     const element = new Element();
@@ -686,7 +686,7 @@ function formHarness({ omitScripts = [], missingIds = [] } = {}) {
   const scripts = Array.from(html.matchAll(/<script\b[^>]*\bsrc="([^"]+)"/gi), match => match[1])
     .filter(src => !/^(?:https?:)?\/\//i.test(src)).map(src => src.split(/[?#]/)[0]);
   for (const script of scripts.filter(src => !omitScripts.includes(src))) {
-    vm.runInNewContext(fs.readFileSync(path.join(root, "frontend", script), "utf8"), context);
+    vm.runInNewContext(fs.readFileSync(path.join(root, script), "utf8"), context);
   }
   if (context.axios) {
     context.axios.post = async (_url, data) => ({

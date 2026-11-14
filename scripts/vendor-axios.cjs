@@ -3,7 +3,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
 const root = path.resolve(__dirname, '..');
-const directory = path.join(root, 'frontend', 'vendor', 'axios');
+const directory = path.join(root, 'vendor', 'axios');
 
 async function download(url) {
   const response = await fetch(url, { signal: AbortSignal.timeout(30000) });

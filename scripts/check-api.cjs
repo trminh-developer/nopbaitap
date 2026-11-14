@@ -2,13 +2,13 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const root = path.resolve(__dirname, '..');
-const axios = require(path.join(root, 'frontend/vendor/axios/axios.min.js'));
-const app = fs.readFileSync(path.join(root, 'frontend/app.js'), 'utf8');
+const axios = require(path.join(root, 'vendor/axios/axios.min.js'));
+const app = fs.readFileSync(path.join(root, 'app.js'), 'utf8');
 const match = app.match(/\bconst\s+API_URL\s*=\s*(['"])([^'"]+)\1/);
-if (!match) throw new Error('Cannot find API_URL in frontend/app.js');
+if (!match) throw new Error('Cannot find API_URL in app.js');
 const apiUrl = match[2];
 const origin = process.argv[2] || 'http://127.0.0.1:5173';
-const expectedProtocol = fs.readFileSync(path.join(root, 'frontend/upload-core.js'), 'utf8').match(/\bPROTOCOL\s*=\s*['"]([^'"]+)/)[1];
+const expectedProtocol = fs.readFileSync(path.join(root, 'upload-core.js'), 'utf8').match(/\bPROTOCOL\s*=\s*['"]([^'"]+)/)[1];
 
 async function probe(method) {
   let url = apiUrl;
